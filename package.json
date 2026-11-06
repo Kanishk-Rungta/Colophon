@@ -1,0 +1,35 @@
+{
+  "name": "colophon",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "evaluate": "vitest run tests/evaluation.test.ts"
+  },
+  "engines": { "node": ">=22.12.0" },
+  "dependencies": {
+    "next": "16.4.5",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zod": "^4.3.6",
+    "lucide-react": "^0.577.0",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.99.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "16.4.5",
+    "vitest": "5.1.0",
+    "@playwright/test": "^1.58.2"
+  }
+}
