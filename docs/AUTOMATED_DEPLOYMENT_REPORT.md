@@ -1,90 +1,52 @@
-# Deployment audit and handoff report
+﻿# Deployment and live verification report
 
-Date: 7 November 2026. Repository: `Kanishk-Rungta/Colophon`, branch `main`.
+Verified on 7 November 2026. Repository: `Kanishk-Rungta/Colophon`, branch `main`.
 
 ## Current outcome
 
-**Deployment is to be performed manually by the owner.** After the initial CLI audit found no authenticated service sessions, the owner requested: “leave that. I will deploy it myself. just give detailed instructions”. Automated project creation, database setup, and deployment were therefore stopped.
+**The public application is working with Supabase persistence:** [colophon-one.vercel.app](https://colophon-one.vercel.app). The owner imported/deployed the repository through Vercel and connected Supabase. After the owner enabled anonymous sign-ins and authenticated the Supabase CLI, the remaining database schema was applied and the real hosted workflow was tested.
 
-The detailed handoff is [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). No public production URL is available or claimed from this follow-up.
+The active project is `tquqrwrudzxnlpqcpqoq` (the Vercel-integrated project). The older `ggxrhdomvxumccyiowmp` project was not modified. No account password, database password, API key, service credential, or token is included in this report or committed to the repository.
 
-## Initial state inspected
+## Database work completed
 
-| Area | Actual finding |
-|---|---|
-| Application | Next.js 16.4.5 App Router, React 19.3.1, TypeScript, npm lockfile; Node 24 expected |
-| Product | Connected landing, overview, studio, evidence, review, and publication-record screens |
-| Default persistence | Browser localStorage demonstration |
-| Hosted persistence | Existing Supabase adapter, anonymous Auth, membership/role checks, server-only writes, aggregate state, and optimistic concurrency |
-| Database schema | Existing `001_workspace.sql`; `workspaces`, `workspace_members`, `action_limits`; RLS, initialization RPC, history trigger, and limiter |
-| Service configuration | No relevant environment variables, `.env.local`, `.vercel` project link, or Supabase CLI link/config found |
-| Git | Existing main branch and canonical origin; owner identity already configured |
-| Prior verification | Previous session recorded 82 unit/integration tests, 14 browser tests on development and optimized production servers, successful lint/type/build, and zero dependency advisories |
+The initial live audit found an enabled Auth service but no application tables. Consequently, authenticated workspace initialization failed. Creating an account/project through the Vercel integration had supplied infrastructure and configuration, but had not installed this application's schema.
 
-The earlier “deploy using GitHub” request was followed by a specification requiring server-side authentication/persistence on Vercel. No GitHub Pages/static-export conversion was made. The intended GitHub deployment path is Vercel's Git integration, preserving the Next.js backend.
+1. Confirmed the selected project and empty public schema with authenticated read-only management queries.
+2. Applied the exact contents of `supabase/migrations/001_workspace.sql` in one transaction through the Supabase CLI's management-query API. The normal `db push --dry-run` path stalled while initializing its database login role, so it was cancelled before applying anything.
+3. Verified `workspaces`, `workspace_members`, and `action_limits`, with RLS enabled on all three. Verified membership read policies, the history-preservation trigger, and privileged initialization/rate-limit functions.
+4. Recorded version `001`, name `workspace`, and the exact source statements in the standard `supabase_migrations.schema_migrations` history, after verifying the migration succeeded. The history schema/table are not exposed to browser roles.
+5. Confirmed authenticated browser clients can read permitted workspaces but cannot update workspace state or change membership roles. Both privileged RPCs are executable by `service_role`, not `anon` or `authenticated`.
 
-## Commands and outcomes in this follow-up
+The initial migration is already applied. **Do not paste it into SQL Editor again.** New schema changes should use a new reviewed migration and an explicit remote target. Read-only verification queries are retained in [supabase/verify.sql](../supabase/verify.sql).
 
-| Command/action | Observed result |
-|---|---|
-| Git status/branch/remote/log/identity | Existing repository and owner identity confirmed |
-| Source, environment-example, migration, and test inspection | Hosted architecture and configuration dependencies documented |
-| npm registry CLI checks | Vercel CLI 65.12.1 and Supabase CLI 3.0.0 available |
-| `npx.cmd --yes vercel whoami` | CLI reported logged out |
-| `npx.cmd --yes supabase projects list` | Rejected because no access token/authenticated session was available |
-| `npx.cmd --yes vercel@65.12.1 login --help` | Confirmed login syntax; no login completed |
-| First `npm.cmd ci` | EPERM: a stale Colophon preview process held its native SWC binary open |
-| Targeted process inspection | Confirmed the locked processes belonged to this repository's Next.js preview; stopped only those verified task processes |
-| Retried `npm.cmd ci` | Completed; zero vulnerabilities, with a Node-version warning in the elevated shell (Node 22.12 versus the project's Node 24 requirement) |
-| Temporary PostgreSQL test dependency | Installation had started before the owner switched to instructions-only; removed afterward. No SQL test dependency or architecture change retained |
-| Additional live database/provider/public-site tests | Not performed; no service access and owner selected manual deployment |
+## Live checks executed
 
-New test counts or a fresh production-build result are not claimed. Historical implementation results remain in [VERIFICATION.md](VERIFICATION.md), distinct from this handoff.
+**12 distinct Playwright tests passed against the public origin**, across scoped runs:
 
-## Retained changes
+| Scope | Tests | Observed result |
+|---|---:|---|
+| Complete judge journey | 1 | Required findings, exact correction, rescan, human approval, Publication Record, history, and reload persistence passed |
+| Review and evidence workflows | 3 | Blocking-finding overrides, request changes, evidence creation/edit/archive and stale-analysis invalidation passed |
+| Responsive approval journeys | 4 | 390, 768, 1280, and 1920-pixel widths passed, including dialogs/navigation and no horizontal document overflow |
+| Hosted security/persistence | 3 | Independent sessions/RLS/API isolation, stale-writer conflict, and current database-role enforcement passed |
+| Automated accessibility | 1 | Six populated screens reported zero violations under the selected axe WCAG 2/2.1 A/AA rules |
 
-- Added `DEPLOYMENT_GUIDE.md`: repository-specific Windows/PowerShell instructions covering architecture, prerequisites, Supabase/auth/keys, migrations, environment variables, local checks, Vercel dashboard/CLI, GitHub auto-deployments, real-site verification, troubleshooting, maintenance, and a ten-step checklist.
-- Added `DEPLOYMENT_READINESS.md`: factual initial audit and missing infrastructure.
-- Added this report, distinguishing actual actions from manual next steps.
-- Updated documentation entry points and Round 2 target-user/deployment information without claiming deployment or live database verification.
-- No redesign, static export, server-logic replacement, secrets, database migrations, or paid infrastructure introduced.
+The hosted security tests specifically observed: unauthenticated API 401; foreign content mutation 404; untrusted Origin 403; direct membership write 403; privileged browser RPC 403; foreign-workspace REST read returning no rows; repeated initialization preserving the same seed; and simultaneous saves yielding one 200 and one 409. A newly created test membership was temporarily restricted to creator; approval returned 403 without creating a record, and its original demo roles were restored in `finally` cleanup.
 
-## Supabase
+One responsive run encountered a Playwright trace-file teardown error because two test processes shared the same output directory. The affected 1280-pixel case was rerun with a separate output directory and passed. This was a test-artifact collision, not an application assertion failure. Run these suites sequentially or give each process a separate `--output` directory.
 
-| Item | Status |
-|---|---|
-| Project selected/created | Not completed |
-| Remote migration applied | Not completed |
-| Anonymous sign-in configured | Not completed |
-| Hosted Northline seed verified | Not completed |
-| Live RLS/permission/isolation tests | Not completed |
-| Existing integration/migration | Present in source; manual setup/verification required |
+Local checks were also executed: **82 unit/integration tests passed**, TypeScript and ESLint passed, and the optimized production build passed. The earlier 14-test local development/production suites remain separately recorded in [VERIFICATION.md](VERIFICATION.md); they are not the live test count.
 
-## Vercel
+## Configuration and limits
 
-| Item | Status |
-|---|---|
-| Account authenticated | No usable CLI session found |
-| Project created/linked | Not completed |
-| GitHub connected to Vercel | Not completed |
-| Vercel environment configured | Not completed |
-| Preview/production deployment | Not completed |
-| Public URL tested | Not completed; no URL claimed |
+- The public health endpoint reports hosted mode, schema version 1, and AI disabled. Actual successful workspace writes/reloads establish database connectivity; the health endpoint alone only reports configuration presence.
+- No Vercel CLI authentication was needed for the schema repair. The owner performed the Vercel import and account/project configuration. No new paid project was created during this repair.
+- Optional live AI remains unconfigured and unevaluated; deterministic reviews work without it.
+- Anonymous demo users intentionally hold creator, reviewer, and administrator roles in their own workspaces. Separate-person reviewer provisioning is not implemented.
+- These checks establish the tested Round 2 demo behavior, not production-scale readiness or full accessibility certification. Destructive history-tampering SQL, quota exhaustion, backup restoration, and server-restart scenarios were not separately exercised against this live project.
+- Fictional isolated test users/workspaces remain in the dedicated project. No existing user data was deleted.
 
-No password, API key, service credential, account token, or private user data appears in this report.
+## Owner next steps
 
-## Completed automatically
-
-Repository/architecture audit, CLI/session checks, dependency reinstall after resolving the task's stale compiler lock, current official documentation review, and detailed manual handoff documentation.
-
-## Requires owner action
-
-1. **Supabase:** sign in to the dashboard, reuse/create the dedicated project, apply and verify `001_workspace.sql`, enable anonymous sign-ins, and collect matching URL/public/server keys privately. Guide section C.
-2. **Local setup:** configure ignored `.env.local`, select Node 24.x, run checks, and verify a hosted save/approval survives refresh. Sections D-E.
-3. **Vercel:** import the existing GitHub repository; select Next.js, root `.`, default output, Node 24, and `main`; configure Production variables; deploy. Section F or CLI alternative G.
-4. **Git/public access:** confirm production branch and ensure the actual production URL works without Vercel login. Sections H-I.
-5. **Verify/submit:** test the public workflow, API/RLS isolation, persistence, mobile layouts, and no-AI behavior. Only then update the submission/PDF URL and status. Sections I and L.
-
-## Judge readiness
-
-The local demonstration was previously verified through the full judge journey. **A public, database-backed, judge-ready deployment has not been established in this follow-up.** Complete the guide and record actual production results before describing it as submission-ready.
+Open the [live demo](https://colophon-one.vercel.app/demo) and use the same browser profile when returning to its anonymous workspace. A fresh private browser context creates a separate workspace. Keep service credentials private and monitor anonymous Auth/database usage. Use [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for future configuration changes, migrations, deployment checks, and maintenance.

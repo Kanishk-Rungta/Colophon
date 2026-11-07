@@ -6,7 +6,7 @@ Colophon is an evidence-first brand governance application built for CodeNexus I
 
 Team: **SCHRODINGERS CODE** · Participant: **Kanishk Rungta**
 
-Source: [Kanishk-Rungta/Colophon](https://github.com/Kanishk-Rungta/Colophon) · Public deployment: **pending configuration and verification**
+Source: [Kanishk-Rungta/Colophon](https://github.com/Kanishk-Rungta/Colophon) · Live: [colophon-one.vercel.app](https://colophon-one.vercel.app)
 
 ## Start locally
 
@@ -43,7 +43,7 @@ Open **http://localhost:3000**. The workspace is at **http://localhost:3000/demo
 | Isolation | Separate browser storage contexts | Membership checks + database RLS |
 | Approval permissions | Demo-domain checks in browser; user can edit storage | Server-validated identity and membership roles |
 | AI | Deterministic checks only; no draft transmission | Optional server-side structured analysis |
-| Verification status | Automated domain and browser verification | Code and migration supplied; live DB acceptance pending |
+| Verification status | Automated domain and browser verification | Live workflows, isolation, permissions, and concurrency tested |
 
 **Local storage is not a production database or authorization boundary.** Tabs in one browser profile intentionally share a workspace. Private/incognito contexts are independent. Browser data can be cleared or edited by its owner. Export JSON before clearing storage. Storage failure never produces a fake success. No cross-device synchronization or record-import UI is included.
 
@@ -66,7 +66,7 @@ All three Supabase variables are required together; partial configuration is an 
 
 See [deployment instructions](docs/DEPLOYMENT.md). Apply [001_workspace.sql](supabase/migrations/001_workspace.sql) and enable anonymous sign-ins. Each session receives an independent Northline seed through idempotent initialization. No shared global mutable demo workspace is used. Client database roles cannot write directly. API identity is validated with `getUser()` and memberships are read on the server.
 
-The Round 2 schema intentionally uses a versioned aggregate with explicit entity IDs instead of twelve normalized tables. See [architecture](docs/ARCHITECTURE.md) for relationships, concurrency, history guards, and scaling limits. No Supabase project was supplied for live integration testing.
+The Round 2 schema intentionally uses a versioned aggregate with explicit entity IDs instead of twelve normalized tables. See [architecture](docs/ARCHITECTURE.md) for relationships, concurrency, history guards, and scaling limits. The public deployment uses project `tquqrwrudzxnlpqcpqoq`; migration `001` is applied and tracked. See the [live verification report](docs/AUTOMATED_DEPLOYMENT_REPORT.md).
 
 ## Judge workflow
 
@@ -97,22 +97,22 @@ If Chrome is already installed, `$env:PLAYWRIGHT_CHANNEL='chrome'` selects it on
 
 See [the verification report](docs/VERIFICATION.md) for actual executed results and limitations. The 28-sample regression set includes a deliberately uncovered arbitrary semantic claim to document the deterministic engine's scope. It is not a general accuracy benchmark.
 
-Latest execution: **82 unit/integration tests passed; 14 browser tests passed against both development and production servers; type checks, lint, production build, and dependency audit passed.** The six-screen axe audit reported no violations under its selected automated rules. This does not establish full accessibility conformance or live Supabase/provider correctness.
+Current hosted verification: **12 distinct browser tests passed against the public site**, covering the judge journey, evidence/review flows, four responsive widths, real RLS/session isolation, reviewer permissions, concurrent saves, and six-screen axe checks. **82 unit/integration tests, type checks, lint, and production build also passed.** Earlier local development and production runs each passed 14 browser tests and the dependency audit found zero vulnerabilities. Automated axe results do not establish full accessibility conformance. Live AI remains unevaluated.
 
 ## Production build and deployment
 
-For the complete Windows 11/PowerShell setup, use [the detailed deployment guide](docs/DEPLOYMENT_GUIDE.md). It covers the actual Supabase schema, exact environment names, Vercel dashboard/CLI, automatic deployments from GitHub, and live isolation checks. [The handoff report](docs/AUTOMATED_DEPLOYMENT_REPORT.md) records what was inspected and what remains manual.
+For the complete Windows 11/PowerShell setup, use [the detailed deployment guide](docs/DEPLOYMENT_GUIDE.md). It covers the actual Supabase schema, exact environment names, Vercel dashboard/CLI, automatic deployments from GitHub, and live isolation checks. [The deployment report](docs/AUTOMATED_DEPLOYMENT_REPORT.md) records the completed schema repair and live test results.
 
 ```powershell
 npm.cmd run build
 npm.cmd start
 ```
 
-Import the repository into Vercel using the Next.js preset and Node 24.x. Empty environment variables deploy the working local-storage demo. Configure Supabase only after applying the migration. Follow the [deployment and hosted acceptance checklist](docs/DEPLOYMENT.md). A public URL is pending; no deployment is claimed without verification.
+Import the repository into Vercel using the Next.js preset and Node 24.x. Empty environment variables deploy the working local-storage demo. Configure Supabase only after applying the migration. Follow the [deployment and hosted acceptance checklist](docs/DEPLOYMENT.md). The verified public deployment is [colophon-one.vercel.app](https://colophon-one.vercel.app). The initial database migration is already applied there; do not rerun it.
 
 ## Known limits
 
-Deterministic checking targets explicit configured phrases and numbers directly before known subjects. It does not establish arbitrary semantic truth, legal compliance, or performance guarantees. It does not parse PDFs, images, spreadsheets, or full guidelines into facts. Claims-policy prose does not automatically compile into arbitrary executable rules. Scope inheritance, supersession chains, multiuser role management UI, provider quality evaluation, durable database integration tests, and high-volume history normalization remain pending. Anonymous demo owner intentionally has all three roles. JSON exports are backups/inspection artifacts; no import workflow is advertised.
+Deterministic checking targets explicit configured phrases and numbers directly before known subjects. It does not establish arbitrary semantic truth, legal compliance, or performance guarantees. It does not parse PDFs, images, spreadsheets, or full guidelines into facts. Claims-policy prose does not automatically compile into arbitrary executable rules. Scope inheritance, supersession chains, multiuser role management UI, provider quality evaluation, broader database integration tests, and high-volume history normalization remain pending. Anonymous demo owner intentionally has all three roles. JSON exports are backups/inspection artifacts; no import workflow is advertised.
 
 ## Submission and Round 3
 
@@ -124,4 +124,4 @@ Deterministic checking targets explicit configured phrases and numbers directly 
 
 Development assistance is disclosed in the submission document. No external customer use, certifications, or invented performance metrics are claimed.
 
-To regenerate the PDF from the retained captures, install Python `reportlab` and run `python scripts/create_submission_pdf.py --unit-tests 82 --browser-tests 14`, replacing those counts only with newly verified results.
+To regenerate the PDF from the retained captures, install Python `reportlab` and run `python scripts/create_submission_pdf.py --unit-tests 82 --browser-tests 14 --live-browser-tests 12`, replacing those counts only with newly verified results.

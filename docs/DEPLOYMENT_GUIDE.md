@@ -6,7 +6,7 @@ Reviewed against the actual repository and official service documentation on 7 N
 
 **Recommended path:** keep the code on GitHub, import that repository into Vercel, and connect the existing Supabase adapter to a dedicated Supabase project. Use the dashboard deployment in section F for the simplest first deployment. Sections B-E prepare the database and local application first.
 
-The application has not been deployed by this guide. Replace example project references and domains with values shown in your own dashboards. No secret values belong in Git or a chat message.
+**Current deployment:** https://colophon-one.vercel.app is verified with hosted Supabase project `tquqrwrudzxnlpqcpqoq`. Migration `001` is already applied and tracked there; do not apply the initial SQL again. The guide below also covers setup of a separate fresh project. Replace example project references and domains with values from the intended dashboard. No secret values belong in Git or a chat message. See the [completed deployment report](AUTOMATED_DEPLOYMENT_REPORT.md).
 
 ## A. Architecture overview
 
@@ -167,12 +167,11 @@ If the configuration file does not exist, initialize CLI configuration without r
 npx.cmd supabase init
 ```
 
-Then link the exact project reference from the dashboard:
+With Supabase CLI 3, database commands default to local unless you select a remote target. Use the exact project reference from the dashboard explicitly:
 
 ```powershell
-npx.cmd supabase link --project-ref YOUR_PROJECT_REF
-npx.cmd supabase migration list
-npx.cmd supabase db push --dry-run
+npx.cmd supabase migration list --remote=YOUR_PROJECT_REF
+npx.cmd supabase db push --remote=YOUR_PROJECT_REF --dry-run
 ```
 
 Read the dry-run output. For a fresh dedicated project, it should propose the repository's `001_workspace.sql`. If it proposes anything unexpected or reports conflicting history, investigate before applying it. Enter a requested database password at the private prompt, not in an argument or Git file.
@@ -180,13 +179,21 @@ Read the dry-run output. For a fresh dedicated project, it should propose the re
 Apply and confirm history:
 
 ```powershell
-npx.cmd supabase db push
-npx.cmd supabase migration list
+npx.cmd supabase db push --remote=YOUR_PROJECT_REF
+npx.cmd supabase migration list --remote=YOUR_PROJECT_REF
 ```
 
 Do not run `db reset` against the hosted project. Do not use `config push` merely to enable anonymous sign-in: it can push other local authentication/settings defaults too. Set that specific option in the dashboard unless you have reviewed the complete configuration diff.
 
-If you already used SQL Editor, a later CLI may not know the migration was applied. Compare the complete schema with the file first. Only after confirming an exact match, use the documented `supabase migration repair 001 --status applied` workflow to record it as applied. Do not use repair to conceal a failed or partial migration. Reference: [Supabase CLI](https://supabase.com/docs/reference/cli/introduction).
+If you already used SQL Editor, a later CLI may not know the migration was applied. Compare the complete schema with the file first. Only after confirming an exact match, use the documented `supabase migration repair 001 --status applied --remote=YOUR_PROJECT_REF` workflow to record it as applied. Do not use repair to conceal a failed or partial migration. Reference: [Supabase CLI](https://supabase.com/docs/reference/cli/introduction).
+
+If database login-role initialization stalls, stop the command and inspect the project rather than resetting it. The authenticated management-query path can execute reviewed SQL without a direct database connection:
+
+```powershell
+npx.cmd supabase db query --remote=YOUR_PROJECT_REF --read-only --file supabase/verify.sql
+```
+
+For a fresh schema, apply the reviewed migration transactionally through SQL Editor or the management API. Applying SQL outside the migration runner does not automatically record CLI history: reconcile history only after confirming the complete schema matches. The existing production project's `001` migration and its source statements are already recorded.
 
 ### 5. Verify schema, RLS, and functions
 
@@ -602,11 +609,25 @@ For broader hosted-compatible workflow coverage:
 npm.cmd run test:e2e -- e2e/judge.spec.ts --grep 'complete judge journey|blocking findings|request changes|evidence can|responsive judge workflow'
 ```
 
-These selected tests use UI workflows and the production origin. The excluded localStorage-only tests are not hosted isolation tests. Keep the Supabase rate-limit budget in mind; repeated runs create users. Afterward, remove your temporary shell overrides if returning to default local tests:
+These selected tests use UI workflows and the production origin. The excluded localStorage-only tests are not hosted isolation tests. Keep the Supabase rate-limit budget in mind; repeated runs create users.
+
+The dedicated hosted tests can also exercise real RLS/API isolation and concurrent saves:
+
+```powershell
+$env:COLOPHON_TEST_HOSTED = '1'
+npm.cmd run test:e2e -- e2e/hosted.spec.ts
+```
+
+The third test is skipped unless `COLOPHON_TEST_ADMIN=1` and `COLOPHON_SUPABASE_PROJECT_REF` is explicitly set to the intended project. It requires an authenticated Supabase CLI, creates its own fictional test session, temporarily restricts only that membership to creator, verifies a rejected approval, and restores its demo roles. Leave this administrative test disabled for ordinary UI verification. Run Playwright processes sequentially or set distinct output directories to avoid trace-file collisions.
+
+Remove test overrides when finished:
 
 ```powershell
 Remove-Item Env:PLAYWRIGHT_BASE_URL -ErrorAction SilentlyContinue
 Remove-Item Env:PLAYWRIGHT_CHANNEL -ErrorAction SilentlyContinue
+Remove-Item Env:COLOPHON_TEST_HOSTED -ErrorAction SilentlyContinue
+Remove-Item Env:COLOPHON_TEST_ADMIN -ErrorAction SilentlyContinue
+Remove-Item Env:COLOPHON_SUPABASE_PROJECT_REF -ErrorAction SilentlyContinue
 ```
 
 ### 6. Test failure and AI fallback behavior
@@ -657,10 +678,10 @@ If using CLI history, create a new migration rather than editing an already appl
 ```powershell
 npx.cmd supabase migration new describe_the_change
 # Review and edit the generated SQL file.
-npx.cmd supabase db push --dry-run
+npx.cmd supabase db push --remote=YOUR_PROJECT_REF --dry-run
 ```
 
-Test it on a separate project/environment, review its effects, back up as appropriate, and only then run `npx.cmd supabase db push` against the correct linked project. Prefer additive changes. Do not reset hosted data or drop tables to resolve a migration conflict.
+Test it on a separate project/environment, review its effects, back up as appropriate, and only then run `npx.cmd supabase db push --remote=YOUR_PROJECT_REF` against the explicitly selected project. Prefer additive changes. Do not reset hosted data or drop tables to resolve a migration conflict.
 
 The existing workspace aggregate is useful for this Round 2 demo, but histories grow as users scan/save. Monitor database/storage size and Auth-user growth in Supabase's usage reports. For a larger product, normalize/paginate histories, define retention policies, and add broader concurrency/security tests before claiming production scale.
 
@@ -678,8 +699,8 @@ Before each commit inspect `git status` and staged diffs. `.env.local` and `.ver
 - Hosted mode, anonymous seeding, persisted approval, and direct isolation checks succeed.
 - The full content → scan → correction → rescan → review → human approval → Publication Record journey succeeds on the public site.
 - The GitHub source URL remains `https://github.com/Kanishk-Rungta/Colophon` and judges have the required repository access.
-- Update `docs/ROUND2_SUBMISSION.md` with the verified public URL and the actual applied migration/test results. Do not replace pending labels with guesses.
-- Review `output/pdf/colophon-round2.pdf`: it was created before public deployment and describes that status as pending. Regenerate/update its deployment-status text and captures only after verifying the live deployment; changing only the Markdown does not update the PDF automatically.
+- Keep `docs/ROUND2_SUBMISSION.md` aligned with the verified public URL and actual migration/test results. It currently records the verified Vercel/Supabase deployment.
+- Keep `output/pdf/colophon-round2.pdf` aligned with the deployment report. It has been refreshed after live verification. Changing Markdown alone does not regenerate the PDF; use the documented script with actual test counts.
 - List working features and the implemented aggregate/database architecture accurately. Keep AI optional and disclose live-provider limitations.
 - The original Round 1 proposal was not supplied in this workspace, so compare your actual original submission before making claims about historical changes.
 - Retain the three planned improvements: **Visual Brand Governance**, **Guideline Debt Analytics**, **Advanced Evidence Verification**.

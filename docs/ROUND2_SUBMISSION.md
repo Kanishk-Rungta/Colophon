@@ -8,7 +8,7 @@
 
 ## A. Project overview
 
-Colophon is an evidence-first brand governance platform that reviews text before publication and preserves the reasoning behind a human approval. Teams can manage approved facts, terminology, claim policies, and tone guidance in an Evidence Library. Content Studio connects specific phrases to those sources, distinguishes contradictions from insufficient evidence, and suggests focused corrections. Every save creates a revision; rescanning keeps findings attached to the correct words and current policies. At the Review Desk, a human can request changes, record a reasoned exception, or explicitly approve an exact version. The resulting Publication Record brings together its text, evidence versions, findings, earlier revisions, reviewer decision, timestamp, audit events, and content fingerprint. An immediately usable Northline demonstration works without an account or AI key. Optional Supabase persistence and a hosted structured-analysis adapter are implemented separately from the tested browser-local workflow. All Northline data is fictional, and a clean scan never claims universal compliance or independent factual certification.
+Colophon is an evidence-first brand governance platform that reviews text before publication and preserves the reasoning behind a human approval. Teams can manage approved facts, terminology, claim policies, and tone guidance in an Evidence Library. Content Studio connects specific phrases to those sources, distinguishes contradictions from insufficient evidence, and suggests focused corrections. Every save creates a revision; rescanning keeps findings attached to the correct words and current policies. At the Review Desk, a human can request changes, record a reasoned exception, or explicitly approve an exact version. The resulting Publication Record brings together its text, evidence versions, findings, earlier revisions, reviewer decision, timestamp, audit events, and content fingerprint. An immediately usable Northline demonstration works without an account or AI key. The public Vercel deployment uses Supabase persistence, with real hosted workflow and isolation tests. An optional structured-analysis adapter is implemented separately and remains unevaluated against a live AI provider. All Northline data is fictional, and a clean scan never claims universal compliance or independent factual certification.
 
 ## B. Problem solved
 
@@ -33,11 +33,15 @@ Target users are brand and marketing teams, content creators, agency contributor
 
 See [the verification report](VERIFICATION.md) for measured test results and the precise scope of automated accessibility checks.
 
+### Hosted deployment implemented and verified
+
+- Public Vercel application: https://colophon-one.vercel.app. The owner completed Vercel setup and enabled anonymous sign-in; the missing database migration was subsequently applied to the connected project.
+- Migration `001` is applied and tracked. All three tables have RLS; browser roles cannot write directly or execute the privileged initialization/limiter RPCs.
+- Twelve distinct live browser tests passed, including full approval/history persistence, evidence/review flows, four responsive layouts, real session/RLS isolation, current reviewer-role enforcement, and simultaneous-save conflict handling. The history trigger and rate-limit RPC exist; destructive tampering and quota exhaustion were not separately live-tested. Local unit/route tests remain separate from these real database checks.
+
 ### Partially implemented / requires external configuration and verification
 
-- Supabase anonymous authentication, server-side membership/role checks, JSONB persistence, RLS migration, initialization lock, optimistic concurrency, database rate limiting, and append-only-history trigger are written. No project credentials were provided, so live database behavior is not claimed as verified. API/domain tests use controlled mocks for server failure/permission paths.
 - Optional OpenAI structured claim analysis is implemented with validation, a timeout, advisory-only output, and deterministic fallback. Missing-key behavior and mocked response validation are tested. No live provider evaluation was run without a key.
-- Vercel deployment configuration/instructions are prepared. A public deployment remains pending authentication/configuration and public-URL verification.
 
 ### Not implemented
 
@@ -57,7 +61,7 @@ Authentication: no production auth in browser-local mode. Hosted mode uses isola
 
 Data flow: evidence library → saved content version → scan/source snapshots → corrections/new revision → human review → approval snapshot/publication record. Details: [architecture](ARCHITECTURE.md).
 
-Deployment: Vercel-compatible Next.js application. The default browser demonstration remains available; the requested database-backed production setup requires the existing Supabase adapter, anonymous Auth, and migration. The owner chose to perform setup personally after an unauthenticated CLI audit. No public deployment or live database verification is claimed. Exact Windows/PowerShell setup: [detailed deployment guide](DEPLOYMENT_GUIDE.md); follow-up status: [handoff report](AUTOMATED_DEPLOYMENT_REPORT.md).
+Deployment: the public Next.js application runs at https://colophon-one.vercel.app with Supabase anonymous Auth and persisted workspace state. The browser-local demonstration remains available when hosted variables are absent. Exact Windows/PowerShell setup: [detailed deployment guide](DEPLOYMENT_GUIDE.md); completed work and test scope: [deployment report](AUTOMATED_DEPLOYMENT_REPORT.md).
 
 ## E. End-to-end workflow
 
@@ -88,7 +92,8 @@ Significant tools used: Codex development assistance, Next.js/React/TypeScript, 
 - Source repository: https://github.com/Kanishk-Rungta/Colophon
 - Local application: http://localhost:3000
 - Local demo: http://localhost:3000/demo
-- Public live URL: **pending Vercel authentication/configuration and verification**.
+- Public live URL: https://colophon-one.vercel.app
+- Direct demo: https://colophon-one.vercel.app/demo
 - Updated PDF: `output/pdf/colophon-round2.pdf` (five-page product, engineering, verification, and roadmap document).
 
 Do not submit the localhost address as the public live project URL.

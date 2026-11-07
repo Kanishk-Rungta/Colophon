@@ -2,7 +2,7 @@
 
 Audit date: 7 November 2026. This assessment describes the repository before the production deployment work in this follow-up.
 
-**Handoff update:** the owner subsequently chose to perform deployment personally. The items below are an assessment/manual checklist, not a record of completed infrastructure work. See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) and [AUTOMATED_DEPLOYMENT_REPORT.md](AUTOMATED_DEPLOYMENT_REPORT.md).
+**Historical assessment:** the items below describe the initial state, before the owner deployed through Vercel and authorized the subsequent database setup. The public site is now verified with hosted persistence; migration `001` is applied. See the current [deployment report](AUTOMATED_DEPLOYMENT_REPORT.md) and [verification results](VERIFICATION.md).
 
 ## Application found
 

@@ -32,13 +32,13 @@ No environment configuration is needed. A fresh browser storage partition receiv
 
 The browser owner can modify their own storage and code. There is **no production security boundary, server authentication, or tamper-resistant audit** in this mode. Browser profiles isolate unrelated visitors; tabs in the same profile intentionally share a workspace. Use only fictional demo data. Export JSON to retain a copy. No local-mode draft text is transmitted to the AI endpoint.
 
-### Hosted Supabase mode (implemented, requires external verification)
+### Hosted Supabase mode (implemented and live-tested)
 
 All three Supabase environment variables must be configured. Partial configuration produces a visible error rather than silently changing storage modes. The browser obtains an anonymous Supabase session through `@supabase/ssr`. API Route Handlers construct a cookie-based server client and validate identity with `auth.getUser()`. Route Handlers can refresh cookies; no user-specific server-rendered content is cached. The server resolves membership and roles from the database, never from request metadata or a supplied workspace ID.
 
 For Round 2, the database stores one versioned aggregate JSONB state per workspace rather than 12 normalized tables. `workspace_members` assigns roles. The service-role client is server-only; browser roles have read-only RLS policies and no direct writes. A transaction and advisory lock make demo initialization idempotent. Server mutations use compare-and-swap on the workspace revision. An SQL trigger rejects changes to existing content versions, publication records, decisions, evidence history, and audit prefixes. A database-backed limit permits 60 actions per identity per minute. POST mutations validate Origin and body size.
 
-This path is not claimed as verified against a live Supabase project: no project credentials were provided. The migration and deployment acceptance checklist must be run before relying on hosted security. It is intentionally not presented as an enterprise deployment.
+This path was tested against the public Vercel deployment and its connected Supabase project after migration `001` was applied. Actual session/RLS isolation, permissions, persistence, and optimistic concurrency checks passed. See [verification scope](VERIFICATION.md); this remains a Round 2 demonstration rather than an enterprise deployment.
 
 ## Verification coverage
 

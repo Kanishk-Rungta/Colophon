@@ -19,6 +19,7 @@ OUT = ROOT / 'output' / 'pdf' / 'colophon-round2.pdf'
 parser = argparse.ArgumentParser()
 parser.add_argument('--unit-tests', type=int, required=True)
 parser.add_argument('--browser-tests', type=int, required=True)
+parser.add_argument('--live-browser-tests', type=int, required=True)
 args = parser.parse_args()
 OUT.parent.mkdir(parents=True, exist_ok=True)
 INK, PAPER, MOSS, SAGE, LINE, NIGHT = map(HexColor, ['#14251f','#f6f4ed','#526448','#b9c79c','#d4dec4','#0b1513'])
@@ -96,7 +97,7 @@ para('Our AI autopilot guarantees 40% faster results for 20,000 customers.',68,3
 rule(226,68,W-136,HexColor('#cbd7b9'))
 label('TERM-006    CLAIM-004    FACT-021',68,207,MOSS,7)
 para('Real checks. Human approval. An inspectable record.',50,157,450,11,'Interface',SAGE,18)
-label('WORKING LOCAL DEMO / PUBLIC DEPLOYMENT PENDING',50,108,HexColor('#9fae90'),7)
+label('LIVE DEMO / HTTPS://COLOPHON-ONE.VERCEL.APP',50,108,HexColor('#9fae90'),7)
 end(1,True)
 
 # 2 / Product and actual interface.
@@ -128,7 +129,7 @@ for title,body in [
     ('Four explicit verdicts.','Supported, contradicted, insufficient evidence, and advisory. Case-insensitive terminology, subject-specific numerical facts, guarantee policies, and tone guidance produce exact source spans. Missing evidence is never equated with falsehood.'),
     ('A version is never silently rewritten.','Saved revisions are immutable. Suggestions use validated text offsets. New evidence revisions and expiry invalidate stale scans. Approval copies the exact reviewed revision, source versions, findings, exceptions, and relevant audit events.'),
     ('Immediately usable without credentials.','An isolated browser-local Northline demo provides real verification, revision, approval, and publication records. Browser storage is not production authentication or a tamper-resistant database. All Northline sources and statistics are fictional.'),
-    ('Optional server infrastructure.','Supabase anonymous auth, server membership checks, RLS, revision compare-and-swap, append-only history guards, and database rate limiting are implemented. Live database acceptance remains pending project credentials.'),
+    ('Verified hosted persistence.','The public Vercel deployment uses Supabase anonymous auth, membership checks, and RLS. Real isolation, reviewer permissions, refresh persistence, and concurrent-save checks passed. Migration 001 is applied; history guards and rate limiting are installed.'),
     ('Optional AI, carefully constrained.','The hosted OpenAI adapter uses strict JSON Schema, exact span/evidence-ID validation, advisory-only observations, and a timeout. Missing keys and rejected responses preserve deterministic checks. Live-provider quality is not claimed without evaluation.')]:
     y=para(escape(title),48,y,W-96,13,'Display',INK,17)
     y=para(escape(body),48,y-7,W-96,9.5,'Interface',MOSS,14)
@@ -139,15 +140,15 @@ end(3)
 # 4 / Verification and the actual publication artifact.
 c.bookmarkPage('verification');c.addOutlineEntry('Verification and publication record','verification',0)
 y=base(4,'03 / VERIFIED BEHAVIOR','The evidence of the build.')
-stats=[(str(args.unit_tests),'UNIT / INTEGRATION TESTS'),(str(args.browser_tests),'BROWSER TESTS'),('28','LABELLED REGRESSION SAMPLES')]
+stats=[(str(args.unit_tests),'UNIT / INTEGRATION TESTS'),(str(args.live_browser_tests),'LIVE HOSTED BROWSER TESTS'),('28','LABELLED REGRESSION SAMPLES')]
 width=(W-96)/3
 for i,(number,caption) in enumerate(stats):
     x=48+i*width
     para(number,x,y,width-10,38,'Display',INK,42)
     label(caption,x,y-56,MOSS,5.5)
 y-=89
-y=para('Actual results from this implementation: deterministic/domain checks, authenticated-route tests with controlled mocks, the complete judge journey, storage-failure handling, isolation, exact corrections, and responsive approval workflows at 390, 768, 1280, and 1920 pixels.',48,y,W-96,9.5,'Interface',MOSS,15)
-y=para('TypeScript, ESLint, production build, dependency audit, and automated accessibility checks are recorded in docs/VERIFICATION.md. Automated accessibility checks are not a claim of full WCAG conformance. Database integration and live AI evaluation require external configuration.',48,y-14,W-96,9.5,'Interface',MOSS,15)
+y=para(f'Actual results: {args.browser_tests} earlier browser tests passed on each local development/production server. {args.live_browser_tests} distinct tests passed in scoped runs against the public site: judge workflow, evidence/review operations, real RLS and role checks, concurrent saves, four responsive widths, and automated accessibility.',48,y,W-96,9.5,'Interface',MOSS,15)
+y=para('TypeScript, ESLint, and the production build passed. Detailed results and the earlier dependency audit are in docs/VERIFICATION.md. Automated accessibility checks do not establish full WCAG conformance. Live AI, destructive tampering, quota exhaustion, and production-scale behavior remain unevaluated.',48,y-14,W-96,9.5,'Interface',MOSS,15)
 y-=26
 label('ACTUAL APPLICATION CAPTURE / PUBLICATION RECORD',48,y,MOSS,6)
 y=image_fit('record-viewport.png',48,y-13,W-96,273)
@@ -169,7 +170,7 @@ for n,title,body in [
 rule(y+6)
 y-=17
 y=para('Submission readiness',48,y,W-96,18,'Display')
-y=para('Source: github.com/Kanishk-Rungta/Colophon<br/>Local demo: http://localhost:3000/demo<br/>Public live URL: pending Vercel authentication/configuration and verification.<br/>Deployment instructions, migration, feature status, test results, and limitations are included in the repository.',48,y-10,W-96,9.5,'Interface',MOSS,16)
+y=para('Source: github.com/Kanishk-Rungta/Colophon<br/>Public demo: https://colophon-one.vercel.app/demo<br/>Vercel was configured by the owner; Supabase migration 001 is applied and tracked.<br/>Deployment instructions, feature status, live test results, and limitations are included in the repository.',48,y-10,W-96,9.5,'Interface',MOSS,16)
 y-=21
 y=para('Tools and assistance disclosure',48,y,W-96,14,'Display')
 y=para('Kanishk Rungta supplied the product direction and specification. Codex assisted with architecture, implementation, interface design, tests, debugging, and documentation. Significant tools include Next.js, React, TypeScript, Supabase libraries, Vitest, Playwright, axe-core, ReportLab, and PDFium. No additional team members or independent-authorship claims are invented.',48,y-8,W-96,9,'Interface',MOSS,14)

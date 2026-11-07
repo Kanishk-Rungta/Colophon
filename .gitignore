@@ -9,6 +9,8 @@ test-results/
 .DS_Store
 coverage/
 .vercel/
+supabase/.temp/
+supabase/.branches/
 artifacts/*.json
 artifacts/*.png
 tmp/

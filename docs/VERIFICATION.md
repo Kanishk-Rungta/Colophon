@@ -15,6 +15,16 @@ Implementation checked on 7 November 2026 (client date). All results below are f
 | Playwright, development server | **14 passed** | Judge journey, overrides, request changes, evidence CRUD/archive/stale scans, browser-context isolation, four responsive workflows, storage errors, malformed data, keyboard focus, pasted markup, six-screen axe audit |
 | Playwright, production server | **14 passed** | Same full suite against the optimized `next start` build at port 3001; completed in 1.6 minutes |
 
+## Public hosted verification
+
+After applying migration `001` to project `tquqrwrudzxnlpqcpqoq`, **12 distinct Playwright tests passed against https://colophon-one.vercel.app**: the judge journey (1), evidence/review workflows (3), responsive journeys at 390/768/1280/1920 pixels (4), hosted security/persistence tests (3), and the six-screen accessibility audit (1). These ran in scoped invocations, not one combined 12-test invocation. The 1280-pixel case passed an isolated retry after a shared trace-directory teardown collision.
+
+Real Supabase tests verified independent workspaces, own-row REST access, foreign-row invisibility under RLS, denied direct membership writes and privileged RPC access, API authentication/Origin checks, idempotent initialization, refresh persistence, and concurrent saves returning one 200 and one 409. A temporary creator-only membership could not approve; the server returned 403 and left the content in review, after which the test restored its original roles.
+
+Read-only database queries confirmed RLS on all three tables, membership policies, server-only RPC privileges, browser-role write restrictions, the history trigger, and recorded migration version `001`. No destructive history-tampering or rate-limit-exhaustion test was performed against the live project. See [the deployment report](AUTOMATED_DEPLOYMENT_REPORT.md) for details.
+
+The live six-screen axe artifact reports zero violations under its selected rules. The current local rerun also passed all 82 unit/integration tests, strict TypeScript, ESLint, and an optimized production build. The 14-test browser counts above describe the earlier local suites and are separate from the 12 hosted tests.
+
 ## Browser coverage
 
 The central journey loads the problematic sample, confirms the three required findings and real source IDs, applies an exact suggestion, edits and rescans a new revision, submits it, explicitly approves it, opens its Publication Record, inspects earlier text, and verifies persistence after reload. The primary journey captures runtime exceptions and asserts none occurred.
@@ -35,9 +45,9 @@ The 28 samples are developer-labelled checks of configured deterministic behavio
 
 ## Explicit verification limits
 
-- **Supabase was not live-tested.** No project credentials/database were supplied. The SQL migration, anonymous-session implementation, membership checks, history trigger, RPC rate limiter, and concurrency code require the external acceptance checks in `DEPLOYMENT.md`. Route tests use mocks and must not be represented as executed RLS/database tests.
+- **Live Supabase coverage is scoped.** The hosted checks above exercised real Auth, database RLS, permissions, persistence, and concurrency. Unit route tests still use mocks. The existence of the history/rate-limit guards was verified, but destructive history rewrites, 61-action quota exhaustion, backup restoration, and server restart were not separately live-tested.
 - **Live AI was not called.** No provider key/model was supplied. Schema/span/reference validation and missing-key fallback are tested; live model behavior, cost, and semantic accuracy are not measured.
-- **No public deployment is claimed.** The application was run locally in development and production. Vercel account/project configuration was not supplied. An actual public URL must be verified before event submission.
+- **Public deployment verified:** https://colophon-one.vercel.app. The owner deployed through Vercel; the subsequent schema repair and browser checks are recorded separately. Live AI remains disabled.
 - The in-app browser preview tool failed to initialize in this environment. Visual QA uses actual Playwright captures inspected locally, not a fabricated screenshot or a claim that the preview tool worked.
 - Browser-local storage provides no protection against the browser owner editing records. This limitation appears in the UI, README, and architecture document.
 
