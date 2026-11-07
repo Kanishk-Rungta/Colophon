@@ -1,5 +1,7 @@
 # Deploy Colophon
 
+For full Windows/PowerShell instructions, use [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md). This shorter document is the original implementation handoff; the current manual-deployment status is recorded in [AUTOMATED_DEPLOYMENT_REPORT.md](AUTOMATED_DEPLOYMENT_REPORT.md).
+
 ## Vercel: immediately usable local-storage demo
 
 1. Import `https://github.com/Kanishk-Rungta/Colophon` into Vercel.

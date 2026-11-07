@@ -101,6 +101,8 @@ Latest execution: **82 unit/integration tests passed; 14 browser tests passed ag
 
 ## Production build and deployment
 
+For the complete Windows 11/PowerShell setup, use [the detailed deployment guide](docs/DEPLOYMENT_GUIDE.md). It covers the actual Supabase schema, exact environment names, Vercel dashboard/CLI, automatic deployments from GitHub, and live isolation checks. [The handoff report](docs/AUTOMATED_DEPLOYMENT_REPORT.md) records what was inspected and what remains manual.
+
 ```powershell
 npm.cmd run build
 npm.cmd start

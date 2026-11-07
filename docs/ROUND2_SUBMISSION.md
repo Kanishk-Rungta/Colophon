@@ -16,6 +16,8 @@ Brand knowledge is scattered across policy documents, product messaging, statist
 
 ## C. Implementation status
 
+Target users are brand and marketing teams, content creators, agency contributors, and human reviewers who need inspectable pre-publication checks and a persistent decision history.
+
 ### Fully implemented and verified in the local demonstration
 
 - Six connected product screens: landing, overview, Content Studio, Evidence Library, Review Desk, Publication Records.
@@ -55,7 +57,7 @@ Authentication: no production auth in browser-local mode. Hosted mode uses isola
 
 Data flow: evidence library → saved content version → scan/source snapshots → corrections/new revision → human review → approval snapshot/publication record. Details: [architecture](ARCHITECTURE.md).
 
-Deployment: Vercel-compatible Next.js application; Supabase optional. Exact setup: [deployment guide](DEPLOYMENT.md).
+Deployment: Vercel-compatible Next.js application. The default browser demonstration remains available; the requested database-backed production setup requires the existing Supabase adapter, anonymous Auth, and migration. The owner chose to perform setup personally after an unauthenticated CLI audit. No public deployment or live database verification is claimed. Exact Windows/PowerShell setup: [detailed deployment guide](DEPLOYMENT_GUIDE.md); follow-up status: [handoff report](AUTOMATED_DEPLOYMENT_REPORT.md).
 
 ## E. End-to-end workflow
 
