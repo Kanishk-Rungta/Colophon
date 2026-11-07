@@ -1,7 +1,9 @@
 # Colophon - CodeNexus India 2026, Round 2
 
-**Team:** SCHRODINGERS CODE  
-**Participant:** Kanishk Rungta  
+**Team:** SCHRODINGERS CODE
+
+**Participant:** Kanishk Rungta
+
 **Role:** Product Research, Full-Stack Development, AI/ML Integration, UI/UX Design, Testing and Deployment
 
 ## A. Project overview
