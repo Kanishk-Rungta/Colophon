@@ -10,3 +10,6 @@ test-results/
 coverage/
 .vercel/
 artifacts/*.json
+artifacts/*.png
+tmp/
+__pycache__/
