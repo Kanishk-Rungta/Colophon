@@ -1,0 +1,18 @@
+/* Deliberate contrast for small source labels and long-form reading. */
+.landing .section-intro>p,.landing .step-no,.landing .record-sample>p{color:#526448}
+.workspace .sidebar-section{color:#b1c69f}
+.workspace-main :is(p,dt,dd,code,.mono,.muted,.library-source,.library-type,.library-type>span,.library-summary,.library-summary-note,.brief-disclaimer,.content-row-title>span,.journey-number,.annotation-key,.editor-meta,.editor-meta>span,.editor-meta>span>span,.scope-selector label,.scope-selector select,.editor-reassurance,.scan-method,.record-small-note,.record-return>span,.review-doc-footer,.decision-reassurance,.decision-row div>span,.decision-row strong>span,.record-decision-content span,.publication-metadata strong>span,.publication-heading p,.publication-final,.fictional-source,.record-source-list strong>span,.source-record-id>span,.historical-finding,.audit-timeline div>span:last-child){color:#526448}
+.workspace .workspace-main :is(h1,h2,h3) em{color:#526448}
+.workspace-main :is(.finding-filters>button,.editor-tabs>button,.sample-button,.finding-body .text-link,.source-id,.review-finding .text-link,.review-sources button,.record-findings>.text-link,.recorded-reason,.recorded-reason b,.review-queue-summary>span,.reviewer-context,.review-queue-tabs>button,.record-return>.text-link,.library-principle,.form-grid label,.evidence-detail dd,.evidence-detail dt){color:#4f6343}
+.workspace-main :is(.finding-labels>.mono,.evidence-reference .mono,.evidence-reference strong,.suggestion>.mono,.verdict-line .mono,.library-row-main>.mono,.library-row-main>.mono>span,.section-heading>.mono,.version-tag,.document-kicker>.mono,.engine-status,.record-section-kicker>.mono,.record-source-list strong,.source-record-id,.publication-metadata strong,.record-finding>span,.record-decision-content p,.audit-timeline p,.audit-timeline strong,.publication-bottom code,.publication-bottom p,.publication-bottom .mono){color:#526448}
+.workspace-main .badge.neutral{color:#526448;background:#edf0e5}
+.workspace-main .scan-summary-count.has-blocking{color:#945333}
+.workspace-main .scan-summary-count.has-blocking>span{color:#7f492f}
+.workspace .workspace-footer,.workspace .workspace-footer>span,.workspace .workspace-footer>span>span{color:#657454}
+.workspace .topbar-location>.slash{color:#647454}
+.workspace .topbar-location>span{color:#5d704e}
+.workspace .workspace-main .review-empty>.eyebrow{color:#526448}
+.workspace-main .form-grid label,.workspace-main .dialog form>label{color:#526448}
+.workspace-main .record-exception{color:#715b28}
+.workspace-main .dialog input::placeholder,.workspace-main textarea::placeholder{color:#6b7c5c}
+.workspace .workspace-main :is(label,.verdict-line b,.review-finding-title,.eyebrow,.review-sources button>span,.record-finding strong,.decision-initials){color:#526448}

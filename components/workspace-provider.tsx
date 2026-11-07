@@ -5,14 +5,9 @@ import { createWorkspace } from '@/lib/seed';
 import { execute } from '@/lib/domain';
 import type { Command, Workspace } from '@/lib/schema';
 import { z } from 'zod';
+import { parseStorage } from '@/lib/storage';
 
 const KEY = 'colophon.workspace.v1';
-const storedSchema = z.object({ schemaVersion: z.literal(1), id: z.string(), revision: z.number(), name: z.string(), owner: z.object({ id: z.string(), workspaceId: z.string(), roles: z.array(z.enum(['creator','reviewer','admin'])), name: z.string() }), evidence: z.array(z.object({ id: z.string(), type: z.string(), scope: z.array(z.string()), status: z.string(), revision: z.number(), title: z.string() }).passthrough()), evidenceHistory: z.array(z.unknown()), contents: z.array(z.object({ id: z.string(), currentVersionId: z.string(), state: z.string(), title: z.string() }).passthrough()), versions: z.array(z.object({ id: z.string(), body: z.string(), number: z.number() }).passthrough()), scans: z.array(z.object({ id: z.string(), findings: z.array(z.unknown()) }).passthrough()), decisions: z.array(z.unknown()), records: z.array(z.unknown()), audit: z.array(z.unknown()) }).passthrough();
-function parseStorage(raw: string): Workspace {
-  const parsed = storedSchema.parse(JSON.parse(raw));
-  if (parsed.owner.workspaceId !== parsed.id || parsed.contents.some(c => !parsed.versions.some(v => v.id === c.currentVersionId))) throw new Error('Invalid workspace relationships');
-  return parsed as Workspace;
-}
 type WorkspaceContext = { state: Workspace | null; mode: 'loading' | 'local' | 'hosted'; busy: boolean; error: string; notice: string; act: (command: Command, message?: string) => Promise<Workspace | null>; clearError: () => void; reload: () => void };
 const Context = createContext<WorkspaceContext | null>(null);
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {

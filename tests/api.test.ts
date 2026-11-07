@@ -1,0 +1,24 @@
+import {beforeEach,describe,it,expect,vi} from 'vitest';
+import {DomainError,type Workspace} from '../lib/schema';
+import {createWorkspace,SAMPLES} from '../lib/seed';
+import {execute} from '../lib/domain';
+const mocked=vi.hoisted(()=>({load:vi.fn(),initialize:vi.fn()}));
+vi.mock('@/lib/server',()=>({loadWorkspace:mocked.load,initializeWorkspace:mocked.initialize}));
+vi.mock('@/lib/ai',()=>({analyzeWithAI:async (_body:string,scan:unknown)=>scan}));
+import {GET,POST} from '../app/api/workspace/route';
+let state:Workspace;
+const post=(body:unknown,origin='http://localhost:3000')=>POST(new Request('http://localhost:3000/api/workspace',{method:'POST',headers:{'Content-Type':'application/json',Origin:origin},body:JSON.stringify(body)}));
+const admin={rpc:vi.fn(),from:vi.fn()};
+beforeEach(()=>{vi.clearAllMocks();state=createWorkspace('owner','workspace');mocked.load.mockImplementation(async()=>({state,actor:state.owner,admin,user:{id:'owner'}}));admin.rpc.mockResolvedValue({data:true,error:null});admin.from.mockReturnValue({update:()=>({eq:()=>({eq:()=>({select:async()=>({data:[{id:state.id}],error:null})})})})});});
+describe('authenticated command route',()=>{
+  it('returns a genuine unconfigured/unauthorized failure rather than fake success',async()=>{mocked.load.mockRejectedValue(new DomainError('Sign in first',401));expect((await GET()).status).toBe(401);});
+  it('rejects cross-origin mutation before touching a workspace',async()=>{expect((await post({initialize:true},'https://attacker.invalid')).status).toBe(403);expect(mocked.load).not.toHaveBeenCalled();});
+  it('validates input and size limits',async()=>{expect((await post({command:{type:'unknown'},revision:0})).status).toBe(422);expect((await post({text:'x'.repeat(51000)})).status).toBe(413);});
+  it('rejects stale workspace revisions',async()=>{expect((await post({revision:9,command:{type:'scan',contentId:state.contents[0].id}})).status).toBe(409);});
+  it('enforces server-resolved reviewer permissions',async()=>{state=await execute(state,{type:'scan',contentId:state.contents[0].id},state.owner);state=await execute(state,{type:'submit',contentId:state.contents[0].id},state.owner);mocked.load.mockResolvedValue({state,actor:{...state.owner,roles:['creator']},admin,user:{id:'owner'}});expect((await post({revision:state.revision,command:{type:'decide',contentId:state.contents[0].id,outcome:'approved',note:''}})).status).toBe(403);});
+  it('returns 404 for a content ID outside the authenticated workspace',async()=>{expect((await post({revision:0,command:{type:'scan',contentId:'foreign-content'}})).status).toBe(404);});
+  it('returns the persisted command result only after a successful write',async()=>{const res=await post({revision:0,command:{type:'save',contentId:state.contents[0].id,title:'Clean',body:SAMPLES[2].body,scope:'global marketing'}});expect(res.status).toBe(200);expect((await res.json()).state.versions.at(-1).body).toBe(SAMPLES[2].body);});
+  it('rejects database concurrency conflicts',async()=>{admin.from.mockReturnValue({update:()=>({eq:()=>({eq:()=>({select:async()=>({data:[],error:null})})})})});expect((await post({revision:0,command:{type:'scan',contentId:state.contents[0].id}})).status).toBe(409);});
+  it('surfaces database write failures without claiming success',async()=>{admin.from.mockReturnValue({update:()=>({eq:()=>({eq:()=>({select:async()=>({data:null,error:{message:'db error'}})})})})});expect((await post({revision:0,command:{type:'scan',contentId:state.contents[0].id}})).status).toBe(503);});
+  it('enforces the database-backed action limit',async()=>{admin.rpc.mockResolvedValue({data:false,error:null});expect((await post({revision:0,command:{type:'scan',contentId:state.contents[0].id}})).status).toBe(429);});
+});
